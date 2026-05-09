@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rizky & Amelia — Blush Rose & Gold</title>
+<link href="https://fonts.googleapis.com/css2?family=Italiana&family=Great+Vibes&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Montserrat:wght@100;200;300&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --blush-pale:#fdf5f5;
+  --blush:#f9e8e8;
+  --blush-mid:#f0d0d0;
+  --rose:#d4909a;
+  --rose-dark:#b06070;
+  --rose-deep:#8a4050;
+  --gold:#c9a055;
+  --gold-light:#e0bc7a;
+  --gold-pale:#f2e0b0;
+  --text:#5a2d35;
+  --text-soft:#a06070;
+  --text-pale:#c8a0a8;
+}
+html{scroll-behavior:smooth}
+body{background:var(--blush-pale);color:var(--text);font-family:'Cormorant Garamond',serif;overflow-x:hidden}
+
+/* GRAIN */
+body::after{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)' opacity='0.025'/%3E%3C/svg%3E");pointer-events:none;z-index:9999;opacity:0.5}
+
+/* WATERMARK */
+.watermark{position:fixed;bottom:16px;right:18px;z-index:1000;text-align:right;pointer-events:none}
+.wm-logo{font-family:'Montserrat',sans-serif;font-size:8px;font-weight:100;letter-spacing:0.45em;color:rgba(176,96,112,0.25);text-transform:uppercase}
+.wm-sub{font-size:7px;letter-spacing:0.2em;color:rgba(176,96,112,0.15);text-transform:uppercase;font-family:'Montserrat',sans-serif}
+
+/* MUSIC PLAYER */
+.music-player{position:fixed;top:18px;left:18px;z-index:1000;display:flex;align-items:center;gap:10px;background:rgba(253,245,245,0.94);border:1px solid rgba(212,144,154,0.25);padding:8px 14px 8px 10px;backdrop-filter:blur(14px);box-shadow:0 4px 24px rgba(176,96,112,0.08)}
+.music-btn{width:28px;height:28px;border:1px solid rgba(212,144,154,0.35);background:transparent;color:var(--rose-dark);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:11px;transition:all 0.3s;flex-shrink:0}
+.music-btn:hover{background:rgba(212,144,154,0.1)}
+.music-title{font-family:'Montserrat',sans-serif;font-size:7.5px;font-weight:200;letter-spacing:0.22em;color:rgba(176,96,112,0.55);text-transform:uppercase}
+.music-artist{font-family:'Cormorant Garamond',serif;font-size:10px;font-style:italic;color:var(--text-pale)}
+.eq{display:flex;align-items:flex-end;gap:2px;height:14px}
+.eq-bar{width:2px;background:var(--rose);opacity:0.5;border-radius:1px;animation:eq var(--s,.8s) ease-in-out var(--d,0s) infinite alternate;height:3px}
+.eq.paused .eq-bar{animation-play-state:paused}
+@keyframes eq{from{height:3px}to{height:13px}}
+
+/* ROSE PETALS CANVAS */
+#petalCanvas{position:fixed;inset:0;pointer-events:none;z-index:1}
+
+/* ENVELOPE */
+#envelope-screen{position:fixed;inset:0;background:linear-gradient(135deg,#fdf5f5 0%,#f5e0e5 100%);z-index:500;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:28px;transition:opacity 1s ease,visibility 1s ease;overflow:hidden}
+#envelope-screen.hidden{opacity:0;visibility:hidden;pointer-events:none}
+
+/* Floral bg on envelope screen */
+.env-floral-bg{position:absolute;inset:0;overflow:hidden;pointer-events:none}
+
+.envelope-r{position:relative;width:260px;height:175px;cursor:pointer;transition:transform 0.35s ease;z-index:2}
+.envelope-r:hover{transform:scale(1.03) translateY(-5px)}
+.env-body-r{position:absolute;inset:0;background:linear-gradient(160deg,#faeaec 0%,#f5dde0 60%,#faeaec 100%);border:1.5px solid rgba(212,144,154,0.4);border-radius:2px 2px 8px 8px;box-shadow:0 15px 50px rgba(176,96,112,0.15),inset 0 1px 0 rgba(255,255,255,0.7)}
+.env-flap-r{position:absolute;top:0;left:0;right:0;height:90px;overflow:hidden;transform-origin:top center;transition:transform 0.9s cubic-bezier(0.4,0,0.2,1);z-index:2}
+.env-fi-r{width:0;height:0;border-left:130px solid transparent;border-right:130px solid transparent;border-top:90px solid #f5dde0;position:relative}
+.env-fi-r::before{content:'';position:absolute;top:-90px;left:-130px;width:0;height:0;border-left:130px solid transparent;border-right:130px solid transparent;border-top:90px solid rgba(212,144,154,0.2)}
+.envelope-r.open .env-flap-r{transform:rotateX(180deg)}
+.env-diag-r{position:absolute;bottom:0;left:0;right:0;height:90px;z-index:1}
+.env-diag-r::before,.env-diag-r::after{content:'';position:absolute;bottom:0;width:50%;height:100%;border-top:1px solid rgba(212,144,154,0.2)}
+.env-diag-r::before{left:0;transform-origin:bottom left;transform:skewY(-31deg)}
+.env-diag-r::after{right:0;transform-origin:bottom right;transform:skewY(31deg)}
+.env-seal-r{position:absolute;top:50%;left:50%;transform:translate(-50%,-15%);width:54px;height:54px;background:radial-gradient(circle at 35% 30%,var(--blush-mid) 0%,var(--rose) 50%,var(--rose-dark) 100%);border-radius:50%;display:flex;align-items:center;justify-content:center;z-index:3;box-shadow:0 4px 18px rgba(176,96,112,0.3),inset 0 1px 2px rgba(255,255,255,0.4);border:1.5px solid rgba(255,255,255,0.5);cursor:pointer}
+.env-seal-text-r{font-family:'Great Vibes',cursive;font-size:18px;color:white;letter-spacing:-1px;text-shadow:0 1px 3px rgba(176,96,112,0.4)}
+
+.env-lbl-r{font-family:'Montserrat',sans-serif;font-size:9px;font-weight:100;letter-spacing:0.55em;color:rgba(176,96,112,0.5);text-transform:uppercase;position:relative;z-index:2;animation:sp 2.5s ease-in-out infinite}
+@keyframes sp{0%,100%{opacity:.5}50%{opacity:1}}
+.env-hint-r{font-family:'Cormorant Garamond',serif;font-size:14px;font-style:italic;color:rgba(176,96,112,0.28);position:relative;z-index:2;animation:sp 3s ease-in-out .5s infinite}
+
+/* MAIN */
+#main-content{opacity:0;transition:opacity 1.3s ease;position:relative;z-index:2}
+#main-content.visible{opacity:1}
+
+/* OPENING */
+.opening{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:60px 24px;position:relative;overflow:hidden;text-align:center}
+
+/* Watercolor wash bg */
+.opening-wash{position:absolute;inset:0;background:linear-gradient(160deg,#fdf5f5 0%,#f9e8e8 30%,#fdf0f0 60%,#fdf5f5 100%);pointer-events:none}
+.opening-wash::before{content:'';position:absolute;top:-10%;left:-10%;width:55%;height:55%;background:radial-gradient(ellipse,rgba(212,144,154,0.12) 0%,transparent 70%);border-radius:50%}
+.opening-wash::after{content:'';position:absolute;bottom:-10%;right:-10%;width:55%;height:55%;background:radial-gradient(ellipse,rgba(201,160,85,0.08) 0%,transparent 70%);border-radius:50%}
+
+.o-content{position:relative;z-index:5;display:flex;flex-direction:column;align-items:center;gap:16px;animation:rUp 1.4s cubic-bezier(0.22,1,0.36,1) both}
+@keyframes rUp{from{opacity:0;transform:translateY(28px)}to{opacity:1;transform:translateY(0)}}
+
+.o-rose-top{font-size:30px;margin-bottom:4px;animation:sway 4s ease-in-out infinite}
+@keyframes sway{0%,100%{transform:rotate(-5deg)}50%{transform:rotate(5deg)}}
+
+.o-eyebrow{font-family:'Montserrat',sans-serif;font-size:9px;font-weight:100;letter-spacing:0.65em;color:var(--text-pale);text-transform:uppercase}
+.o-div{display:flex;align-items:center;gap:14px;width:min(280px,80vw);margin:4px 0}
+.o-dl{flex:1;height:1px;background:linear-gradient(90deg,transparent,rgba(201,160,85,0.45),transparent)}
+.o-dr{width:5px;height:5px;background:var(--gold);transform:rotate(45deg);opacity:0.6;flex-shrink:0}
+.o-bismillah{font-family:'Cormorant Garamond',serif;font-size:clamp(22px,6vw,36px);color:var(--rose-deep);font-weight:300;line-height:1.5}
+.o-bismillah-latin{font-family:'Cormorant Garamond',serif;font-size:13px;font-style:italic;color:var(--text-soft);letter-spacing:0.1em;line-height:1.9;max-width:360px}
+.o-names{font-family:'Great Vibes',cursive;font-size:clamp(58px,15vw,92px);color:transparent;background:linear-gradient(160deg,#e8a0b0 0%,#c06878 30%,#9a4858 60%,#c06878 80%,#8a4050 100%);-webkit-background-clip:text;background-clip:text;line-height:0.95;filter:drop-shadow(0 2px 10px rgba(176,96,112,0.2))}
+.o-date{font-family:'Montserrat',sans-serif;font-size:10px;font-weight:100;letter-spacing:0.42em;color:var(--text-soft);text-transform:uppercase;margin-top:8px}
+.o-body{font-family:'Cormorant Garamond',serif;font-size:16px;font-weight:300;font-style:italic;color:var(--text-soft);line-height:1.95;max-width:400px}
+.o-scroll{position:absolute;bottom:28px;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:8px;opacity:0.3;animation:bob 2.2s ease-in-out infinite;z-index:5}
+@keyframes bob{0%,100%{transform:translateX(-50%) translateY(0)}50%{transform:translateX(-50%) translateY(7px)}}
+.o-sl{width:1px;height:36px;background:linear-gradient(180deg,var(--rose),transparent)}
+.o-st{font-family:'Montserrat',sans-serif;font-size:7px;letter-spacing:0.3em;color:var(--rose-dark);text-transform:uppercase}
+
+/* DIVIDER */
+.s-div{width:100%;height:1px;background:linear-gradient(90deg,transparent,rgba(212,144,154,0.2) 30%,rgba(212,144,154,0.2) 70%,transparent)}
+
+/* HERO */
+.hero{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;position:relative;overflow:hidden;padding:60px 20px}
+.hero-wash{position:absolute;inset:0;background:linear-gradient(180deg,#f9e8e8 0%,#f5e0e2 50%,#f9e8e8 100%)}
+.hero-wash::before{content:'';position:absolute;top:10%;left:5%;width:300px;height:300px;background:radial-gradient(ellipse,rgba(212,144,154,0.1) 0%,transparent 70%);border-radius:50%}
+.hero-wash::after{content:'';position:absolute;bottom:10%;right:5%;width:250px;height:250px;background:radial-gradient(ellipse,rgba(201,160,85,0.08) 0%,transparent 70%);border-radius:50%}
+
+/* Floral frame corners */
+.floral-corner{position:absolute;font-size:60px;opacity:0.12;pointer-events:none;line-height:1}
+.floral-corner.tl{top:16px;left:16px;transform:rotate(0deg)}
+.floral-corner.tr{top:16px;right:16px;transform:rotate(90deg)}
+.floral-corner.bl{bottom:16px;left:16px;transform:rotate(270deg)}
+.floral-corner.br{bottom:16px;right:16px;transform:rotate(180deg)}
+
+/* Gold thin frame */
+.g-frame{position:absolute;inset:28px;pointer-events:none;z-index:2}
+.g-fl{position:absolute;background:linear-gradient(90deg,transparent,rgba(201,160,85,0.3),transparent)}
+.g-fl.t,.g-fl.b{height:1px;left:28px;right:28px}
+.g-fl.t{top:0}.g-fl.b{bottom:0}
+.g-fl.l,.g-fl.r{width:1px;top:28px;bottom:28px;background:linear-gradient(180deg,transparent,rgba(201,160,85,0.3),transparent)}
+.g-fl.l{left:0}.g-fl.r{right:0}
+.g-corner{position:absolute;width:22px;height:22px}
+.g-corner::before,.g-corner::after{content:'';position:absolute;background:var(--gold);opacity:0.45}
+.g-corner::before{width:100%;height:1px;top:0}
+.g-corner::after{width:1px;height:100%}
+.g-corner.tl{top:0;left:0}.g-corner.tl::after{left:0}
+.g-corner.tr{top:0;right:0}.g-corner.tr::before{right:0}.g-corner.tr::after{right:0}
+.g-corner.bl{bottom:0;left:0}.g-corner.bl::before{bottom:0}.g-corner.bl::after{left:0;bottom:0;top:auto}
+.g-corner.br{bottom:0;right:0}.g-corner.br::before{bottom:0;right:0}.g-corner.br::after{right:0;bottom:0;top:auto}
+
+.h-content{position:relative;z-index:5;display:flex;flex-direction:column;align-items:center;gap:6px;animation:rUp 1.5s cubic-bezier(0.22,1,0.36,1) .3s both}
+.h-eyebrow{font-family:'Montserrat',sans-serif;font-size:9px;font-weight:100;letter-spacing:0.65em;color:var(--text-pale);text-transform:uppercase;margin-bottom:6px}
+.h-div{display:flex;align-items:center;gap:12px;width:260px;margin:7px 0}
+.h-dl{flex:1;height:1px;background:linear-gradient(90deg,transparent,rgba(201,160,85,0.45),transparent)}
+.h-dr{width:5px;height:5px;background:var(--gold);transform:rotate(45deg);opacity:0.55;flex-shrink:0}
+.h-name{font-family:'Great Vibes',cursive;font-size:clamp(66px,17vw,108px);line-height:0.9;color:transparent;background:linear-gradient(160deg,#e8a0b0 0%,#c06878 25%,#9a4858 55%,#c06878 80%,#8a4050 100%);-webkit-background-clip:text;background-clip:text;filter:drop-shadow(0 3px 12px rgba(176,96,112,0.18));text-align:center}
+.h-amp{font-family:'Italiana',serif;font-size:32px;color:rgba(201,160,85,0.55);letter-spacing:0.2em;margin:-8px 0}
+.h-date{font-family:'Montserrat',sans-serif;font-size:10.5px;font-weight:100;letter-spacing:0.36em;color:var(--text-soft);text-transform:uppercase;margin-top:14px}
+.h-loc{font-family:'Cormorant Garamond',serif;font-size:14px;font-style:italic;color:var(--text-pale);letter-spacing:0.1em}
+.cta{margin-top:30px;padding:12px 36px;background:transparent;border:1px solid rgba(212,144,154,0.45);color:var(--rose-dark);font-family:'Montserrat',sans-serif;font-size:9px;font-weight:100;letter-spacing:0.5em;text-transform:uppercase;cursor:pointer;transition:all 0.4s;text-decoration:none;display:inline-block;position:relative;overflow:hidden}
+.cta::before{content:'';position:absolute;inset:0;background:rgba(212,144,154,0.07);transform:scaleX(0);transition:transform 0.4s}
+.cta:hover::before{transform:scaleX(1)}
+.cta:hover{border-color:var(--rose);color:var(--rose-deep);box-shadow:0 0 25px rgba(212,144,154,0.12)}
+
+/* PHOTO */
+.photo-wrap{padding:80px 20px 40px;max-width:620px;margin:0 auto;display:flex;flex-direction:column;align-items:center;gap:32px;position:relative;z-index:2}
+.photo-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;width:100%;max-width:520px;position:relative}
+.photo-card{aspect-ratio:3/4;border:1.5px solid rgba(212,144,154,0.25);overflow:hidden;background:linear-gradient(145deg,#f5e0e2,#eed0d4);cursor:pointer;position:relative;transition:border-color 0.3s;box-shadow:0 8px 30px rgba(176,96,112,0.1)}
+.photo-card:hover{border-color:rgba(212,144,154,0.55)}
+.photo-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,rgba(201,160,85,0.5),transparent);z-index:2}
+.photo-card::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,transparent 55%,rgba(138,64,80,0.4) 100%);z-index:2;pointer-events:none}
+.photo-preview{width:100%;height:100%;object-fit:cover;display:none}
+.photo-preview.loaded{display:block}
+.photo-placeholder{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px}
+.photo-placeholder.hidden{opacity:0;pointer-events:none}
+.photo-ic{font-size:26px;color:rgba(176,96,112,0.25)}
+.photo-lbl{font-family:'Montserrat',sans-serif;font-size:8px;font-weight:100;letter-spacing:0.22em;color:rgba(176,96,112,0.3);text-transform:uppercase;text-align:center;padding:0 12px}
+.photo-init{font-family:'Great Vibes',cursive;font-size:52px;color:rgba(212,144,154,0.15);position:absolute}
+.photo-tag{position:absolute;bottom:14px;left:0;right:0;text-align:center;z-index:4;pointer-events:none}
+.photo-tag span{font-family:'Great Vibes',cursive;font-size:26px;color:rgba(255,255,255,0.9);text-shadow:0 1px 6px rgba(138,64,80,0.4)}
+.photo-input{display:none}
+.photo-and-c{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-family:'Great Vibes',cursive;font-size:42px;color:rgba(212,144,154,0.25);pointer-events:none;z-index:10}
+
+/* SECTION */
+.section{padding:80px 20px;max-width:660px;margin:0 auto;display:flex;flex-direction:column;align-items:center;gap:14px;position:relative;z-index:2}
+.s-label{font-family:'Montserrat',sans-serif;font-size:9px;font-weight:100;letter-spacing:0.6em;color:var(--text-pale);text-transform:uppercase}
+.s-title{font-family:'Italiana',serif;font-size:clamp(26px,6.5vw,42px);color:var(--rose-deep);text-align:center;line-height:1.2}
+.s-body{font-family:'Cormorant Garamond',serif;font-size:16px;font-weight:300;line-height:1.95;color:var(--text-soft);text-align:center;max-width:460px}
+.orn{display:flex;align-items:center;gap:14px;width:100%;max-width:280px;margin:10px 0}
+.orn-l{flex:1;height:1px;background:linear-gradient(90deg,transparent,rgba(201,160,85,0.35),transparent)}
+.orn-cw{display:flex;align-items:center;gap:5px}
+.orn-dot{width:3px;height:3px;background:rgba(201,160,85,0.45);border-radius:50%}
+.orn-d{width:7px;height:7px;background:var(--gold);transform:rotate(45deg);opacity:0.42}
+
+/* COUPLE */
+.couple-grid{display:grid;grid-template-columns:1fr auto 1fr;gap:18px;align-items:center;width:100%;max-width:540px;margin-top:16px}
+.couple-card{display:flex;flex-direction:column;align-items:center;gap:10px;padding:26px 14px;border:1px solid rgba(212,144,154,0.2);background:rgba(255,255,255,0.5);box-shadow:0 4px 20px rgba(176,96,112,0.07)}
+.couple-av{width:78px;height:78px;border-radius:50%;border:1.5px solid rgba(212,144,154,0.3);display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#faeaec,#f5dde0)}
+.couple-init{font-family:'Great Vibes',cursive;font-size:34px;color:var(--rose-dark);opacity:0.6}
+.couple-nm{font-family:'Great Vibes',cursive;font-size:28px;color:transparent;background:linear-gradient(160deg,#e8a0b0,#c06878);-webkit-background-clip:text;background-clip:text}
+.couple-desc{font-family:'Cormorant Garamond',serif;font-size:12px;font-style:italic;color:var(--text-pale);text-align:center;line-height:1.6}
+.couple-and{font-family:'Great Vibes',cursive;font-size:50px;color:rgba(212,144,154,0.3);text-align:center}
+
+/* COUNTDOWN */
+.cd-sec{background:linear-gradient(180deg,transparent,rgba(212,144,154,0.04) 50%,transparent);border-top:1px solid rgba(212,144,154,0.1);border-bottom:1px solid rgba(212,144,154,0.1);width:100%;padding:70px 20px;position:relative;z-index:2}
+.cd-wrap{max-width:560px;margin:0 auto;display:flex;flex-direction:column;align-items:center;gap:36px}
+.cd-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;width:100%;max-width:460px}
+.cd-unit{display:flex;flex-direction:column;align-items:center;gap:8px;padding:20px 8px;border:1px solid rgba(212,144,154,0.15);background:rgba(255,255,255,0.6);box-shadow:0 2px 12px rgba(176,96,112,0.06);position:relative;overflow:hidden}
+.cd-unit::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,rgba(201,160,85,0.4),transparent)}
+.cd-num{font-family:'Italiana',serif;font-size:clamp(28px,6.5vw,42px);color:transparent;background:linear-gradient(160deg,#e8a0b0 0%,#c06878 50%,#9a4858 100%);-webkit-background-clip:text;background-clip:text;line-height:1}
+.cd-lbl{font-family:'Montserrat',sans-serif;font-size:7.5px;font-weight:100;letter-spacing:0.3em;color:var(--text-pale);text-transform:uppercase}
+
+/* EVENTS */
+.ev-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;width:100%;max-width:540px}
+.ev-card{padding:26px 18px;border:1px solid rgba(212,144,154,0.15);background:rgba(255,255,255,0.55);box-shadow:0 2px 16px rgba(176,96,112,0.06);position:relative;overflow:hidden;transition:box-shadow 0.3s}
+.ev-card:hover{box-shadow:0 6px 28px rgba(176,96,112,0.12)}
+.ev-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,rgba(212,144,154,0.5),transparent)}
+.ev-type{font-family:'Montserrat',sans-serif;font-size:8px;font-weight:100;letter-spacing:0.42em;color:var(--text-pale);text-transform:uppercase;margin-bottom:10px}
+.ev-name{font-family:'Italiana',serif;font-size:22px;color:var(--rose-deep);margin-bottom:10px;line-height:1}
+.ev-time{font-family:'Montserrat',sans-serif;font-size:10px;font-weight:200;color:var(--gold);letter-spacing:0.12em;margin-bottom:5px}
+.ev-venue{font-family:'Cormorant Garamond',serif;font-size:12.5px;font-style:italic;color:var(--text-pale);line-height:1.5}
+.maps-btn{display:inline-flex;align-items:center;gap:10px;padding:12px 28px;border:1px solid rgba(212,144,154,0.38);background:transparent;color:var(--rose-dark);font-family:'Montserrat',sans-serif;font-size:9px;font-weight:100;letter-spacing:0.42em;text-transform:uppercase;cursor:pointer;text-decoration:none;transition:all 0.3s;position:relative;overflow:hidden}
+.maps-btn::before{content:'';position:absolute;inset:0;background:rgba(212,144,154,0.07);transform:scaleX(0);transition:transform 0.3s}
+.maps-btn:hover::before{transform:scaleX(1)}
+.maps-btn:hover{border-color:var(--rose)}
+
+/* RSVP */
+.rsvp-sec{background:linear-gradient(180deg,transparent,rgba(212,144,154,0.04) 50%,transparent);border-top:1px solid rgba(212,144,154,0.1);width:100%;padding:80px 20px;position:relative;z-index:2}
+.rsvp-wrap{max-width:460px;margin:0 auto;display:flex;flex-direction:column;align-items:center;gap:22px}
+.rsvp-form{width:100%;display:flex;flex-direction:column;gap:13px}
+.f-field{display:flex;flex-direction:column;gap:6px}
+.f-label{font-family:'Montserrat',sans-serif;font-size:8px;font-weight:100;letter-spacing:0.42em;color:var(--text-pale);text-transform:uppercase}
+.f-input,.f-select,.f-textarea{background:rgba(255,255,255,0.65);border:1px solid rgba(212,144,154,0.2);color:var(--text);font-family:'Cormorant Garamond',serif;font-size:15px;padding:12px 14px;outline:none;transition:border-color 0.3s;width:100%;font-style:italic}
+.f-input:focus,.f-select:focus,.f-textarea:focus{border-color:rgba(212,144,154,0.5)}
+.f-input::placeholder,.f-textarea::placeholder{color:var(--text-pale)}
+.f-textarea{resize:none;height:78px}
+.f-row{display:grid;grid-template-columns:1fr 1fr;gap:13px}
+.sub-btn{padding:14px 36px;background:transparent;border:1px solid rgba(212,144,154,0.42);color:var(--rose-dark);font-family:'Montserrat',sans-serif;font-size:9px;font-weight:100;letter-spacing:0.5em;text-transform:uppercase;cursor:pointer;transition:all 0.4s;align-self:center;margin-top:6px;position:relative;overflow:hidden}
+.sub-btn::before{content:'';position:absolute;inset:0;background:rgba(212,144,154,0.07);transform:scaleX(0);transition:transform 0.4s}
+.sub-btn:hover::before{transform:scaleX(1)}
+.sub-btn:hover{border-color:var(--rose);color:var(--rose-deep)}
+.rsvp-ok{display:none;flex-direction:column;align-items:center;gap:14px;padding:40px;border:1px solid rgba(212,144,154,0.2);text-align:center;background:rgba(255,255,255,0.5)}
+.rsvp-ok.show{display:flex}
+
+/* CLOSING */
+.closing{padding:100px 20px 90px;display:flex;flex-direction:column;align-items:center;gap:16px;position:relative;overflow:hidden;z-index:2}
+.closing-wash{position:absolute;inset:0;background:linear-gradient(180deg,#f9e8e8,#f5dde0)}
+.closing-wash::before{content:'';position:absolute;top:0;left:50%;transform:translateX(-50%);width:400px;height:400px;background:radial-gradient(ellipse,rgba(212,144,154,0.12) 0%,transparent 70%);border-radius:50%}
+.closing-names{font-family:'Great Vibes',cursive;font-size:clamp(40px,10vw,68px);color:transparent;background:linear-gradient(160deg,#e8a0b0 0%,#c06878 40%,#9a4858 70%,#c06878 100%);-webkit-background-clip:text;background-clip:text;text-align:center;position:relative;z-index:2;filter:drop-shadow(0 2px 10px rgba(176,96,112,0.15))}
+.closing-verse{font-family:'Cormorant Garamond',serif;font-size:14px;font-style:italic;color:var(--text-soft);text-align:center;max-width:380px;line-height:1.95;position:relative;z-index:2}
+.closing-wm{font-family:'Montserrat',sans-serif;font-size:8px;font-weight:100;letter-spacing:0.5em;color:rgba(176,96,112,0.2);text-transform:uppercase;margin-top:30px;text-align:center;line-height:2.2;position:relative;z-index:2}
+
+@media(max-width:480px){.ev-grid,.couple-grid{grid-template-columns:1fr}.couple-and{display:none}.f-row{grid-template-columns:1fr}.cd-grid{grid-template-columns:repeat(2,1fr)}.g-frame{display:none}.floral-corner{font-size:40px}}
+</style>
+</head>
+<body>
+
+<!-- PETAL CANVAS -->
+<canvas id="petalCanvas"></canvas>
+
+<div class="watermark"><div class="wm-logo">WNJ Studio</div><div class="wm-sub">Premium Invitations</div></div>
+
+<!-- MUSIC -->
+<div class="music-player">
+  <button class="music-btn" id="musicBtn" onclick="toggleMusic()">▶</button>
+  <div><div class="music-title">All of Me</div><div class="music-artist">John Legend</div></div>
+  <div class="eq paused" id="eq">
+    <div class="eq-bar" style="--s:.6s;--d:0s"></div><div class="eq-bar" style="--s:.8s;--d:.15s"></div>
+    <div class="eq-bar" style="--s:.5s;--d:.3s"></div><div class="eq-bar" style="--s:.9s;--d:.05s"></div>
+    <div class="eq-bar" style="--s:.7s;--d:.22s"></div>
+  </div>
+</div>
+<audio id="bgMusic" loop><source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-5.mp3" type="audio/mpeg"></audio>
+
+<!-- ENVELOPE -->
+<div id="envelope-screen">
+  <!-- Floral bg -->
+  <div class="env-floral-bg">
+    <div style="position:absolute;top:-30px;left:-30px;font-size:120px;opacity:0.06;transform:rotate(-20deg)">🌸</div>
+    <div style="position:absolute;top:20px;right:-20px;font-size:90px;opacity:0.06;transform:rotate(15deg)">🌹</div>
+    <div style="position:absolute;bottom:-20px;left:20%;font-size:100px;opacity:0.05;transform:rotate(10deg)">🌸</div>
+    <div style="position:absolute;bottom:10px;right:10%;font-size:80px;opacity:0.06;transform:rotate(-15deg)">🌷</div>
+    <div style="position:absolute;top:40%;left:-10px;font-size:70px;opacity:0.05;transform:rotate(25deg)">🌺</div>
+  </div>
+  <div style="font-family:'Montserrat',sans-serif;font-size:9px;font-weight:100;letter-spacing:0.5em;color:rgba(176,96,112,0.35);text-transform:uppercase;position:relative;z-index:2">WNJ Studio · Premium Invitations</div>
+  <div class="envelope-r" id="envelope" onclick="openEnvelope()">
+    <div class="env-body-r"></div>
+    <div class="env-flap-r"><div class="env-fi-r"></div></div>
+    <div class="env-diag-r"></div>
+    <div class="env-seal-r"><span class="env-seal-text-r">R&A</span></div>
+  </div>
+  <div class="env-lbl-r">Undangan Pernikahan</div>
+  <div class="env-hint-r">Ketuk amplop untuk membuka undangan</div>
+</div>
+
+<!-- MAIN -->
+<div id="main-content">
+
+  <!-- OPENING -->
+  <section class="opening">
+    <div class="opening-wash"></div>
+    <div class="o-content">
+      <div class="o-rose-top">🌸 ✦ 🌸</div>
+      <div class="o-eyebrow">Dengan Menyebut Nama Allah</div>
+      <div class="o-div"><div class="o-dl"></div><div class="o-dr"></div><div class="o-dl"></div></div>
+      <div class="o-bismillah">بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ</div>
+      <div class="o-bismillah-latin">Bismillāhir-raḥmānir-raḥīm<br>Dengan nama Allah Yang Maha Pengasih lagi Maha Penyayang</div>
+      <div class="o-div" style="margin-top:4px"><div class="o-dl"></div><div class="o-dr"></div><div class="o-dl"></div></div>
+      <div class="o-body">Assalamu'alaikum Warahmatullahi Wabarakatuh<br><br>Dengan penuh rasa syukur dan kebahagiaan, kami mengundang Bapak/Ibu/Saudara/i untuk hadir menyaksikan dan memberikan doa restu pada hari pernikahan kami.</div>
+      <div class="o-div"><div class="o-dl"></div><div class="o-dr"></div><div class="o-dl"></div></div>
+      <div class="o-names">Rizky & Amelia</div>
+      <div class="o-date">14 Maret 2026 · Jakarta</div>
+    </div>
+    <div class="o-scroll"><div class="o-st">Scroll</div><div class="o-sl"></div></div>
+  </section>
+
+  <div class="s-div"></div>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-wash"></div>
+    <!-- Floral corners -->
+    <div class="floral-corner tl">🌸</div>
+    <div class="floral-corner tr">🌸</div>
+    <div class="floral-corner bl">🌸</div>
+    <div class="floral-corner br">🌸</div>
+    <!-- Gold frame -->
+    <div class="g-frame">
+      <div class="g-fl t"></div><div class="g-fl b"></div>
+      <div class="g-fl l"></div><div class="g-fl r"></div>
+      <div class="g-corner tl"></div><div class="g-corner tr"></div>
+      <div class="g-corner bl"></div><div class="g-corner br"></div>
+    </div>
+
+    <div class="h-content">
+      <div class="h-eyebrow">Undangan Pernikahan</div>
+      <div class="h-div"><div class="h-dl"></div><div class="h-dr"></div><div class="h-dl"></div></div>
+      <div class="h-name">Rizky</div>
+      <div class="h-amp">&amp;</div>
+      <div class="h-name">Amelia</div>
+      <div class="h-div" style="margin-top:14px"><div class="h-dl"></div><div class="h-dr"></div><div class="h-dl"></div></div>
+      <div class="h-date">Sabtu, 14 Maret 2026</div>
+      <div class="h-loc">The Grand Ballroom, Hotel Mulia Senayan · Jakarta</div>
+      <a href="#rsvp" class="cta">Konfirmasi Kehadiran</a>
+    </div>
+    <div class="o-scroll" style="bottom:30px"><div class="o-st">Scroll</div><div class="o-sl"></div></div>
+  </section>
+
+  <div class="s-div"></div>
+
+  <!-- PHOTO -->
+  <div class="photo-wrap">
+    <div class="s-label">Mempelai</div>
+    <div class="orn"><div class="orn-l"></div><div class="orn-cw"><div class="orn-dot"></div><div class="orn-d"></div><div class="orn-dot"></div></div><div class="orn-l"></div></div>
+    <div class="s-title" style="margin-bottom:4px">Foto Pasangan</div>
+    <div class="s-body" style="font-size:13px;color:var(--text-pale)">Ketuk foto untuk mengunggah gambar Anda</div>
+    <div class="photo-grid" style="max-width:520px;width:100%">
+      <div class="photo-card" onclick="document.getElementById('p1').click()">
+        <img class="photo-preview" id="pr1" alt="Rizky">
+        <div class="photo-placeholder" id="ph1"><div class="photo-init">R</div><div class="photo-ic">📷</div><div class="photo-lbl">Tap upload foto Rizky</div></div>
+        <div class="photo-tag"><span>Rizky</span></div>
+        <input type="file" class="photo-input" id="p1" accept="image/*" onchange="loadPic(this,'pr1','ph1')">
+      </div>
+      <div class="photo-card" onclick="document.getElementById('p2').click()">
+        <img class="photo-preview" id="pr2" alt="Amelia">
+        <div class="photo-placeholder" id="ph2"><div class="photo-init">A</div><div class="photo-ic">📷</div><div class="photo-lbl">Tap upload foto Amelia</div></div>
+        <div class="photo-tag"><span>Amelia</span></div>
+        <input type="file" class="photo-input" id="p2" accept="image/*" onchange="loadPic(this,'pr2','ph2')">
+      </div>
+      <div class="photo-and-c">&</div>
+    </div>
+  </div>
+
+  <div class="s-div"></div>
+
+  <!-- COUPLE -->
+  <section class="section">
+    <div class="s-label">Tentang Kami</div>
+    <div class="orn"><div class="orn-l"></div><div class="orn-cw"><div class="orn-dot"></div><div class="orn-d"></div><div class="orn-dot"></div></div><div class="orn-l"></div></div>
+    <div class="s-title">Dua Jiwa, Satu Ikatan</div>
+    <div class="couple-grid">
+      <div class="couple-card"><div class="couple-av"><span class="couple-init">R</span></div><div class="couple-nm">Rizky</div><div class="couple-desc">Putra dari<br>Bapak Ahmad & Ibu Sari</div></div>
+      <div class="couple-and">&</div>
+      <div class="couple-card"><div class="couple-av"><span class="couple-init">A</span></div><div class="couple-nm">Amelia</div><div class="couple-desc">Putri dari<br>Bapak Hendra & Ibu Dewi</div></div>
+    </div>
+    <div class="s-body" style="margin-top:18px">"Dan di antara tanda-tanda kekuasaan-Nya ialah Dia menciptakan untukmu pasangan hidup dari jenismu sendiri, supaya kamu cenderung dan merasa tenteram kepadanya."</div>
+    <div style="font-family:'Montserrat',sans-serif;font-size:9px;font-weight:100;letter-spacing:0.2em;color:var(--text-pale);margin-top:-4px">— QS. Ar-Rum: 21 —</div>
+  </section>
+
+  <div class="s-div"></div>
+
+  <!-- COUNTDOWN -->
+  <div class="cd-sec">
+    <div class="cd-wrap">
+      <div class="s-label">Menghitung Hari</div>
+      <div class="orn"><div class="orn-l"></div><div class="orn-cw"><div class="orn-dot"></div><div class="orn-d"></div><div class="orn-dot"></div></div><div class="orn-l"></div></div>
+      <div class="s-title" style="margin-top:-6px">14 Maret 2026</div>
+      <div class="cd-grid">
+        <div class="cd-unit"><div class="cd-num" id="cd-d">00</div><div class="cd-lbl">Hari</div></div>
+        <div class="cd-unit"><div class="cd-num" id="cd-h">00</div><div class="cd-lbl">Jam</div></div>
+        <div class="cd-unit"><div class="cd-num" id="cd-m">00</div><div class="cd-lbl">Menit</div></div>
+        <div class="cd-unit"><div class="cd-num" id="cd-s">00</div><div class="cd-lbl">Detik</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="s-div"></div>
+
+  <!-- EVENTS -->
+  <section class="section">
+    <div class="s-label">Rangkaian Acara</div>
+    <div class="orn"><div class="orn-l"></div><div class="orn-cw"><div class="orn-dot"></div><div class="orn-d"></div><div class="orn-dot"></div></div><div class="orn-l"></div></div>
+    <div class="s-title">Jadwal Acara</div>
+    <div class="ev-grid">
+      <div class="ev-card"><div class="ev-type">Akad Nikah</div><div class="ev-name">The Ceremony</div><div class="ev-time">08.00 — 10.00 WIB</div><div class="ev-venue">Masjid Al-Mulia<br>Hotel Mulia Senayan, Jakarta</div></div>
+      <div class="ev-card"><div class="ev-type">Resepsi</div><div class="ev-name">The Reception</div><div class="ev-time">11.00 — 14.00 WIB</div><div class="ev-venue">The Grand Ballroom<br>Hotel Mulia Senayan, Jakarta</div></div>
+    </div>
+    <div class="orn" style="margin-top:18px"><div class="orn-l"></div><div class="orn-cw"><div class="orn-dot"></div><div class="orn-d"></div><div class="orn-dot"></div></div><div class="orn-l"></div></div>
+    <a href="https://maps.google.com" target="_blank" class="maps-btn"><span>📍</span> Buka di Google Maps</a>
+  </section>
+
+  <div class="s-div"></div>
+
+  <!-- RSVP -->
+  <div class="rsvp-sec" id="rsvp">
+    <div class="rsvp-wrap">
+      <div class="s-label">Konfirmasi Kehadiran</div>
+      <div class="orn"><div class="orn-l"></div><div class="orn-cw"><div class="orn-dot"></div><div class="orn-d"></div><div class="orn-dot"></div></div><div class="orn-l"></div></div>
+      <div class="s-title">RSVP</div>
+      <div class="s-body" style="font-size:14px;margin-top:-4px">Mohon konfirmasi sebelum <strong style="color:var(--rose-dark)">14 Februari 2026</strong></div>
+      <form class="rsvp-form" id="rsvpForm" onsubmit="doRSVP(event)">
+        <div class="f-field"><label class="f-label">Nama Lengkap</label><input class="f-input" type="text" placeholder="Masukkan nama Anda" required></div>
+        <div class="f-row">
+          <div class="f-field"><label class="f-label">Kehadiran</label><select class="f-select f-input" required><option value="">Pilih...</option><option>Hadir</option><option>Tidak Hadir</option></select></div>
+          <div class="f-field"><label class="f-label">Jumlah Tamu</label><select class="f-select f-input"><option>1 orang</option><option>2 orang</option><option>3 orang</option></select></div>
+        </div>
+        <div class="f-field"><label class="f-label">Ucapan & Doa</label><textarea class="f-textarea" placeholder="Tuliskan ucapan untuk mempelai..."></textarea></div>
+        <button type="submit" class="sub-btn">Kirim Konfirmasi</button>
+      </form>
+      <div class="rsvp-ok" id="rsvpOk">
+        <div style="font-size:28px">🌸</div>
+        <div class="s-title" style="font-size:22px">Terima Kasih!</div>
+        <div class="s-body" style="font-size:13px">Konfirmasi Anda telah kami terima.<br>Kami sangat menantikan kehadiran Anda.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="s-div"></div>
+
+  <!-- CLOSING -->
+  <section class="closing">
+    <div class="closing-wash"></div>
+    <div class="s-label">Dengan Penuh Cinta</div>
+    <div class="orn"><div class="orn-l"></div><div class="orn-cw"><div class="orn-dot"></div><div class="orn-d"></div><div class="orn-dot"></div></div><div class="orn-l"></div></div>
+    <div class="closing-names">Rizky &amp; Amelia</div>
+    <div class="orn"><div class="orn-l"></div><div class="orn-cw"><div class="orn-dot"></div><div class="orn-d"></div><div class="orn-dot"></div></div><div class="orn-l"></div></div>
+    <div class="closing-verse">Merupakan suatu kehormatan dan kebahagiaan bagi kami apabila Bapak/Ibu/Saudara/i berkenan hadir untuk memberikan doa restu kepada kami.<br><br>Wassalamu'alaikum Warahmatullahi Wabarakatuh</div>
+    <div style="margin-top:20px;font-size:24px;opacity:0.2;position:relative;z-index:2">🌸 ✦ 🌸</div>
+    <div class="closing-wm">WNJ Studio<br><span style="font-size:7px;letter-spacing:0.2em;color:rgba(176,96,112,0.12)">Premium Invitations · 2026</span></div>
+  </section>
+
+</div>
+
+<script>
+// ROSE PETAL CANVAS
+const canvas = document.getElementById('petalCanvas');
+const ctx = canvas.getContext('2d');
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+window.addEventListener('resize', () => { canvas.width = window.innerWidth; canvas.height = window.innerHeight; });
+
+const petals = [];
+const colors = ['rgba(240,160,170,', 'rgba(220,130,145,', 'rgba(255,200,210,', 'rgba(201,160,85,'];
+
+for (let i = 0; i < 28; i++) {
+  petals.push({
+    x: Math.random() * window.innerWidth,
+    y: Math.random() * window.innerHeight - window.innerHeight,
+    size: 4 + Math.random() * 8,
+    speedY: 0.5 + Math.random() * 1.2,
+    speedX: (Math.random() - 0.5) * 0.8,
+    rotation: Math.random() * Math.PI * 2,
+    rotSpeed: (Math.random() - 0.5) * 0.03,
+    color: colors[Math.floor(Math.random() * colors.length)],
+    opacity: 0.15 + Math.random() * 0.25,
+    sway: Math.random() * Math.PI * 2,
+    swaySpeed: 0.01 + Math.random() * 0.02
+  });
+}
+
+function drawPetal(p) {
+  ctx.save();
+  ctx.translate(p.x, p.y);
+  ctx.rotate(p.rotation);
+  ctx.beginPath();
+  ctx.ellipse(0, 0, p.size, p.size * 1.6, 0, 0, Math.PI * 2);
+  ctx.fillStyle = p.color + p.opacity + ')';
+  ctx.fill();
+  ctx.restore();
+}
+
+function animPetals() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  petals.forEach(p => {
+    p.sway += p.swaySpeed;
+    p.x += p.speedX + Math.sin(p.sway) * 0.5;
+    p.y += p.speedY;
+    p.rotation += p.rotSpeed;
+    if (p.y > canvas.height + 20) {
+      p.y = -20;
+      p.x = Math.random() * canvas.width;
+    }
+    drawPetal(p);
+  });
+  requestAnimationFrame(animPetals);
+}
+animPetals();
+
+// MUSIC
+const audio = document.getElementById('bgMusic'), btn = document.getElementById('musicBtn'), eq = document.getElementById('eq');
+let playing = false;
+function toggleMusic() { if (playing) { audio.pause(); btn.textContent = '▶'; eq.classList.add('paused'); } else { audio.play().catch(() => {}); btn.textContent = '⏸'; eq.classList.remove('paused'); } playing = !playing; }
+
+// ENVELOPE
+function openEnvelope() {
+  document.getElementById('envelope').classList.add('open');
+  setTimeout(() => {
+    audio.play().then(() => { playing = true; btn.textContent = '⏸'; eq.classList.remove('paused'); }).catch(() => {});
+    document.getElementById('envelope-screen').classList.add('hidden');
+    document.getElementById('main-content').classList.add('visible');
+  }, 950);
+}
+
+// PHOTO
+function loadPic(input, prvId, phId) {
+  const f = input.files[0]; if (!f) return;
+  const r = new FileReader();
+  r.onload = e => { const img = document.getElementById(prvId); img.src = e.target.result; img.classList.add('loaded'); document.getElementById(phId).classList.add('hidden'); };
+  r.readAsDataURL(f);
+}
+
+// COUNTDOWN
+function tick() {
+  const diff = new Date('2026-03-14T08:00:00') - new Date();
+  if (diff <= 0) { ['d','h','m','s'].forEach(k => document.getElementById('cd-' + k).textContent = '00'); return; }
+  document.getElementById('cd-d').textContent = String(Math.floor(diff / 86400000)).padStart(2, '0');
+  document.getElementById('cd-h').textContent = String(Math.floor(diff % 86400000 / 3600000)).padStart(2, '0');
+  document.getElementById('cd-m').textContent = String(Math.floor(diff % 3600000 / 60000)).padStart(2, '0');
+  document.getElementById('cd-s').textContent = String(Math.floor(diff % 60000 / 1000)).padStart(2, '0');
+}
+tick(); setInterval(tick, 1000);
+
+// RSVP
+function doRSVP(e) { e.preventDefault(); document.getElementById('rsvpForm').style.display = 'none'; document.getElementById('rsvpOk').classList.add('show'); }
+</script>
+</body>
+</html>
